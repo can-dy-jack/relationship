@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Character { // 人物表
+    id Int @id @default(autoincrement()) 
+    name String // 人物名
+    comments String // 注释
+    relations Relationship[]
+    groups GroupRelation[]
+}
+
+model Relationship {  // 人物关系表
+    id Int @id @default(autoincrement())
+    character Character @relation(fields: [characterId], references: [id])
+    characterId Int // 人物id
+    relativeCharactorId Int // 与 人物id 有关的人物id
+    relationName String //关系名称
+}
+
+model Group { // 人物所属组
+    id Int @id @default(autoincrement())
+    name String // 组名称
+    comments String // 备注
+    relations GroupRelation[]
+}
+
+model GroupRelation {
+    id Int @id @default(autoincrement())
+    character Character @relation(fields: [characterId], references: [id])
+    characterId Int
+    group Group @relation(fields: [groupId], references: [id])
+    groupId Int
+}
