@@ -1,7 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import os from 'os';
-import { getCharacters, createCharacter, getGroups, createGroup } from './api';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
@@ -52,38 +51,5 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === undefined) {
     createWindow();
-  }
-});
-
-/**
- * apis
- */
-ipcMain.handle('getCharacters', async () => {
-  return await getCharacters();
-});
-
-ipcMain.handle(
-  'createCharacter',
-  async (e, name: string, comments: string, groups: number[]) => {
-    try {
-      await createCharacter(name, comments, groups);
-      return true;
-    } catch (e) {
-      console.warn(e);
-      return false;
-    }
-  }
-);
-ipcMain.handle('getGroups', async () => {
-  return await getGroups();
-});
-
-ipcMain.handle('createGroup', async (e, name: string, comments: string) => {
-  try {
-    await createGroup(name, comments);
-    return true;
-  } catch (e) {
-    console.warn(e);
-    return false;
   }
 });

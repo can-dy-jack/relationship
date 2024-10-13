@@ -27,21 +27,3 @@
  *   }
  * }
  */
-
-const { contextBridge, ipcRenderer } = require('electron');
-
-contextBridge.exposeInMainWorld('versions', {
-  node: () => process.versions.node,
-  chrome: () => process.versions.chrome,
-  electron: () => process.versions.electron,
-  // 除函数之外，我们也可以暴露变量
-});
-
-contextBridge.exposeInMainWorld('apis', {
-  getCharacters: () => ipcRenderer.invoke('getCharacters'), // 前端： window.apis.getCharacters().then(console.log)
-  createCharacter: (name: string, comments: string, groups: number[]) =>
-    ipcRenderer.invoke('createCharacter', name, comments, groups),
-  getGroups: () => ipcRenderer.invoke('getGroups'),
-  createGroup: (name: string, comments: string) =>
-    ipcRenderer.invoke('createGroup', name, comments),
-});

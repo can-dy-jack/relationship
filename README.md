@@ -1,9 +1,41 @@
-prisma \ vue3 - (quasar) - electron
+# Relationship network (relationship)
 
-prisma \ react - next - (antd) - electron
+a app of building person relationship
 
-<!-- electon中可以直接使用 prisma！ -->
-<!-- https://blog.csdn.net/qq_37460847/article/details/126918641 vue3 + electon  -->
-<!-- https://term-inator.github.io/2023/07/23/use-prisma-with-electron/ -->
+## Install the dependencies
+```bash
+yarn
+# or
+npm install
+```
 
-<!-- 或者quasar本身就支持electron？ -->
+### Start the app in development mode (hot-code reloading, error reporting, etc.)
+```bash
+quasar dev
+```
+
+
+### Lint the files
+```bash
+yarn lint
+# or
+npm run lint
+```
+
+
+### Format the files
+```bash
+yarn format
+# or
+npm run format
+```
+
+
+
+### Build the app for production
+```bash
+quasar build
+```
+
+### Customize the configuration
+See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
