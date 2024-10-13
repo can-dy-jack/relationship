@@ -6,11 +6,15 @@
       :todos="todos"
       :meta="meta"
     ></example-component>
+
+    <div>
+      {{ JSON.stringify(temp) }}
+    </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Todo, Meta } from 'components/models';
 import ExampleComponent from 'components/ExampleComponent.vue';
 
@@ -40,6 +44,18 @@ const todos = ref<Todo[]>([
     content: 'ct5'
   }
 ]);
+
+const temp = ref([] as unknown);
+
+async function getdate() {
+  const res = await apis.getCharacters();
+  temp.value = res;
+  console.log(res);
+}
+
+onMounted(() => {
+  getdate();
+});
 
 const meta = ref<Meta>({
   totalCount: 1200

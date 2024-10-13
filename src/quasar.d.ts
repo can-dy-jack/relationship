@@ -7,3 +7,26 @@
 //  this declaration also apply `quasar` own
 //  augmentations (eg. adds `$q` into Vue component context)
 /// <reference types="@quasar/app-vite" />
+
+type Character = import('@prisma/client').Character;
+type Group = import('@prisma/client').Group;
+type GroupRelation = import('@prisma/client').GroupRelation;
+
+type GroupRelationInfo = GroupRelation & {
+  group: Group;
+};
+type CharacterInfo = Character & {
+  groups: GroupRelationInfo[];
+};
+
+declare const apis: {
+  getCharacters: () => Promise<CharacterInfo[]>;
+  createCharacter: (
+    name: string,
+    comments: string,
+    groups: string[]
+  ) => Promise<Boolean>;
+  // getGroups: () => Promise<Group[]>;
+  // createGroup: (name: string, comments: string) => Promise<Boolean>;
+};
+

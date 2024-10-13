@@ -27,3 +27,12 @@
  *   }
  * }
  */
+
+import { ipcRenderer, contextBridge } from 'electron';
+
+contextBridge.exposeInMainWorld('apis', {
+    getCharacters: () => ipcRenderer.invoke('apis:getCharacters'),
+    createCharacter: (name: string, comments: string, groups: number[]) =>
+      ipcRenderer.invoke('apis:createCharacter', name, comments, groups),
+  });
+
