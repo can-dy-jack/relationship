@@ -11,5 +11,6 @@ declare module '@vue/runtime-core' {
 declare global {
   interface Window {
     i18n: any
+    apis: any
   }
 }

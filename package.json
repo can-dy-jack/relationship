@@ -1,10 +1,10 @@
 {
-  "name": "electron-vite-vue-prisma-i18next-example",
-  "version": "1.0.0",
-  "description": "An Electron application with Vue and TypeScript",
+  "name": "relationship",
+  "version": "0.1.0-alpha.1",
+  "description": "An Electron application for building relationship network.",
   "main": "./out/main/index.js",
-  "author": "leoFitz1024",
-  "homepage": "https://electron-vite.org",
+  "author": "kartjim",
+  "homepage": "https://github.com/can-dy-jack/relationship",
   "license": "MIT",
   "engines": {
     "node": ">=18.20.0"
