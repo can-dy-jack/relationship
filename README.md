@@ -1,14 +1,3 @@
-# Relationship network (relationship)
+# 人物关系网
 
-a app of building person relationship
-
-```
-# install
-yarn install
-
-# dev
-yarn electron:dev
-
-# build
-yarn electron:build
-```
+- [ ] prisma - 自己的数据库

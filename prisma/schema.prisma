@@ -1,42 +1,33 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
-model Character {
-  id        Int             @id @default(autoincrement())
-  name      String // 人物名
-  comments  String // 注释
-  relations Relationship[]
-  groups    GroupRelation[]
+model DownloadRecord {
+  id        Int      @id @default(autoincrement())
+  thumb     String
+  url       String
+  path      String
+  status    Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
 }
 
-model Relationship {
-  id                  Int       @id @default(autoincrement())
-  character           Character @relation(fields: [characterId], references: [id])
-  characterId         Int // 人物id
-  relativeCharactorId Int // 与 人物id 有关的人物id
-  relationName        String //关系名称
+model Collection {
+  id        Int      @id @default(autoincrement())
+  name      String
+  desc      String?
+  createdAt DateTime @default(now()) @map("created_at")
 }
 
-model Group {
-  id        Int             @id @default(autoincrement())
-  name      String // 组名称
-  comments  String // 备注
-  relations GroupRelation[]
-}
-
-model GroupRelation {
-  id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
-  group       Group     @relation(fields: [groupId], references: [id])
-  groupId     Int
+model CollectionItem {
+  id            Int      @id @default(autoincrement())
+  collection_id Int
+  wallpaper_url String
+  smallThumb    String?  @map("small_thumb")
+  originalThumb String?  @map("original_thumb")
+  createdAt     DateTime @default(now()) @map("created_at")
 }
