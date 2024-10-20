@@ -1,7 +1,7 @@
 {
-  "name": "electron-react-boilerplate",
-  "description": "A foundation for scalable desktop apps",
-  "version": "0.2.0-alpha.2",
+  "name": "relationship",
+  "description": "An app for building relationship network.",
+  "version": "0.2.0-alpha.3",
   "license": "MIT",
   "main": "./.erb/dll/main.bundle.dev.js",
   "scripts": {
@@ -72,6 +72,8 @@
   },
   "dependencies": {
     "@electron/notarize": "^2.3.2",
+    "@prisma/client": "^5.21.1",
+    "antd": "^5.21.4",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
@@ -149,11 +151,24 @@
     "productName": "Relationship",
     "appId": "org.erb.Relationship",
     "asar": true,
-    "asarUnpack": "**\\*.{node,dll}",
+    "asarUnpack": [
+      "**\\*.{node,dll}",
+      "prisma"
+    ],
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "prisma/**/*",
+      "resources/**/*",
+      "!**/node_modules/@prisma/engines/introspection-engine*",
+      "!**/node_modules/@prisma/engines/migration-engine*",
+      "!**/node_modules/@prisma/engines/prisma-fmt*",
+      "!**/node_modules/@prisma/engines/query_engine-*",
+      "!**/node_modules/@prisma/engines/libquery_engine*",
+      "!**/node_modules/prisma/query_engine*",
+      "!**/node_modules/prisma/libquery_engine*",
+      "!**/node_modules/prisma/**/*.mjs"
     ],
     "mac": {
       "sign": ".erb/scripts/notarize.js",
@@ -202,7 +217,11 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "prisma/**/*",
+      "node_modules/@prisma/engines/migration-engine*",
+      "node_modules/@prisma/engines/query*",
+      "node_modules/@prisma/engines/libquery*"
     ],
     "publish": {
       "provider": "github",
