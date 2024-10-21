@@ -14,6 +14,7 @@ function Page() {
   const [curFormdata, setCurFormdata] = useState<any>({})
 
   const getData = () => {
+    // TODO 不要手动查询所有 - 分页
     setLoading(true);
     window.apis
       .getCharacters()

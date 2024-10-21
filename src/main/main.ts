@@ -7,6 +7,7 @@ import fs from 'fs'
 import { PrismaClient } from '@prisma/client'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
+import InitApis from './apis'
 
 class AppUpdater {
   constructor() {
@@ -192,45 +193,7 @@ const prisma = new PrismaClient({
   }
 })
 
-ipcMain.handle('getCharacters', async () => {
-  const res = await prisma.character.findMany()
-  return res
-  // event.reply('test', res)
-})
-
-ipcMain.handle(
-  'createCharacter',
-  async (event, name: string, comments: string, groups: number[]) => {
-    const newCharacter = await prisma.character.create({
-      data: {
-        name,
-        comments
-      }
-    })
-    groups.forEach((id: number) => {
-      prisma.groupRelation.create({
-        data: {
-          characterId: newCharacter.id,
-          groupId: id
-        }
-      })
-    })
-
-    // event.reply('test2', res);
-    return newCharacter
-  }
-)
-
-ipcMain.handle('deleteCharacters', async (event, ids) => {
-  const popItems = await prisma.character.deleteMany({
-    where: {
-      id: {
-        in: ids
-      }
-    }
-  })
-  return popItems
-})
+InitApis(prisma);
 
 // ipcMain.on('config:get-app-path', (event) => {
 //   event.returnValue = app.getAppPath()
