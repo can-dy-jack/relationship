@@ -156,7 +156,7 @@ function Page() {
               cancelText="No"
             >
               <Button type="primary" danger disabled={!hasSelected} loading={loading}>
-                删除
+                批量删除
               </Button>
             </Popconfirm>
             <Button type="primary" onClick={createData} loading={loading} icon={<PlusOutlined />}>

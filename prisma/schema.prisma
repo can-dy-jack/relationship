@@ -5,6 +5,8 @@ generator client {
   provider      = "prisma-client-js"
   engineType    = "library"
   binaryTargets = ["native", "windows"]
+
+  // 注释这一行重新 generate
   output        = "../release/app/node_modules/@prisma/client"
 }
 
