@@ -1,17 +1,41 @@
-import React, { useEffect, useState } from 'react'
-import { Character } from '@prisma/client'
-import { Button, Flex, message, Modal, Popconfirm, Space, Table, Form, Input, Select } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
-import { useTableScroll } from '../hooks'
+import React, { useEffect, useState } from 'react';
+import { Character, Group } from '@prisma/client';
+import {
+  Button,
+  Flex,
+  message,
+  Modal,
+  Popconfirm,
+  Space,
+  Table,
+  Form,
+  Input,
+  Select,
+} from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { useTableScroll } from '../hooks';
 
 function Page() {
-  const [data, setData] = useState<Character[]>([])
+  const [data, setData] = useState<Character[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [form] = Form.useForm()
-  const [mode, setMode] = useState<'VIEW' | 'EDIT' | 'ADD'>('VIEW')
-  const [curFormdata, setCurFormdata] = useState<any>({})
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const [mode, setMode] = useState<'VIEW' | 'EDIT' | 'ADD'>('VIEW');
+  const [curFormdata, setCurFormdata] = useState<any>({});
+
+  const [options, setOptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    window.apis
+      .getGroups()
+      .then((res: Group[]) => {
+        return setOptions(
+          res.map((item) => ({ value: item.id, label: item.name })),
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   const getData = () => {
     // TODO 不要手动查询所有 - 分页
@@ -19,12 +43,12 @@ function Page() {
     window.apis
       .getCharacters()
       .then((res: Character[]) => {
-        setData(res)
+        setData(res);
         setLoading(false);
-        return false
+        return false;
       })
-      .catch(() => {})
-  }
+      .catch(() => {});
+  };
 
   const handleOk = () => {
     if (mode === 'ADD') {
@@ -32,82 +56,94 @@ function Page() {
         .validateFields({ validateOnly: true })
         .then(() => {
           window.apis
-            .createCharacter(curFormdata?.name, curFormdata.comments, curFormdata.groups || [])
+            .createCharacter(
+              curFormdata?.name,
+              curFormdata.comments,
+              curFormdata.groups || [],
+            )
             .then(() => {
-              setIsModalOpen(false)
-              form.resetFields()
-              getData()
-              message.success('新增成功！')
-              return true
+              setIsModalOpen(false);
+              form.resetFields();
+              getData();
+              message.success('新增成功！');
+              return true;
             })
-            .catch(message.error)
-          return true
+            .catch(message.error);
+          return true;
         })
-        .catch(() => {})
-    } else if (mode == 'EDIT') {
+        .catch(() => {});
+    } else if (mode === 'EDIT') {
       // TODO 更新
     }
     // setIsModalOpen(false)
-  }
+  };
   const onValuesChange = (_: any, d: any) => {
-    setCurFormdata(d)
-  }
+    setCurFormdata(d);
+  };
 
   const handleCancel = () => {
-    setCurFormdata({})
-    form.resetFields()
-    setIsModalOpen(false)
-    setMode('VIEW')
-  }
+    setCurFormdata({});
+    form.resetFields();
+    setIsModalOpen(false);
+    setMode('VIEW');
+  };
 
   const createData = () => {
-    setIsModalOpen(true)
-    setMode('ADD')
-  }
+    setIsModalOpen(true);
+    setMode('ADD');
+  };
 
   useEffect(() => {
-    getData()
-  }, [])
+    getData();
+  }, []);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
   };
 
   const deleteItem = (d: any) => {
     window.apis
       .deleteCharacters([d.id])
       .then((res: any) => {
-        message.success(`成功删除${res.count}条数据`)
-        getData()
-        return true
+        message.success(`成功删除${res.count}条数据`);
+        getData();
+        return true;
       })
-      .catch(message.error)
-  }
+      .catch(message.error);
+  };
   const deleteItems = () => {
     window.apis
       .deleteCharacters(selectedRowKeys as number[])
       .then((res: any) => {
-        message.success(`成功删除${res.count}条数据`)
-        getData()
-        return true
+        message.success(`成功删除${res.count}条数据`);
+        getData();
+        return true;
       })
-      .catch(message.error)
-  }
+      .catch(message.error);
+  };
 
   const editItem = (d: any) => {
-    form.setFieldsValue(d)
-    setIsModalOpen(true)
-    setMode('EDIT')
-  }
+    form.setFieldsValue(d);
+    setIsModalOpen(true);
+    setMode('EDIT');
+  };
 
-  const columns = [
+  const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
     { title: '名字', dataIndex: 'name' },
     { title: '备注', dataIndex: 'comments' },
+    {
+      title: '所属分组',
+      dataIndex: 'groups',
+      render: (d: any) => {
+        console.log(d)
+        return (<div>2333</div>)
+      },
+    }, // TODO
     {
       title: '操作列',
       key: 'tags',
@@ -133,9 +169,9 @@ function Page() {
         </Space>
       ),
       width: 150,
-      align: 'center'
-    }
-  ]
+      align: 'center',
+    },
+  ];
 
   const hasSelected = selectedRowKeys.length > 0;
   const tableSrcollHeight = useTableScroll({ extraHeight: 100 });
@@ -144,7 +180,9 @@ function Page() {
     <div>
       <Flex gap="middle" vertical>
         <Flex align="center" gap="middle" justify="space-between">
-          <div>{hasSelected ? `已选择 ${selectedRowKeys.length} 条数据` : null}</div>
+          <div>
+            {hasSelected ? `已选择 ${selectedRowKeys.length} 条数据` : null}
+          </div>
 
           <Space>
             <Popconfirm
@@ -155,11 +193,21 @@ function Page() {
               okText="Yes"
               cancelText="No"
             >
-              <Button type="primary" danger disabled={!hasSelected} loading={loading}>
+              <Button
+                type="primary"
+                danger
+                disabled={!hasSelected}
+                loading={loading}
+              >
                 批量删除
               </Button>
             </Popconfirm>
-            <Button type="primary" onClick={createData} loading={loading} icon={<PlusOutlined />}>
+            <Button
+              type="primary"
+              onClick={createData}
+              loading={loading}
+              icon={<PlusOutlined />}
+            >
               新增人物
             </Button>
           </Space>
@@ -204,7 +252,7 @@ function Page() {
               placeholder="Please select"
               defaultValue={[]}
               // onChange={handleChange}
-              // options={options}
+              options={options}
             />
           </Form.Item>
         </Form>
