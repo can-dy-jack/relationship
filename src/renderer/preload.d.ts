@@ -1,22 +1,30 @@
-type Character = import('@prisma/client').Character
-type Group = import('@prisma/client').Group
-type GroupRelation = import('@prisma/client').GroupRelation
+type Character = import('@prisma/client').Character;
+type Group = import('@prisma/client').Group;
+type GroupRelation = import('@prisma/client').GroupRelation;
 
 type GroupRelationInfo = GroupRelation & {
-  group: Group
-}
+  group: Group;
+};
 type CharacterInfo = Character & {
-  groups: GroupRelationInfo[]
-}
+  groups: GroupRelationInfo[];
+};
 
 declare global {
   interface Window {
     apis: {
-      getCharacters: () => Promise<CharacterInfo[]>
-      createCharacter: (name: string, comments: string, groups: number[]) => Promise<CharacterInfo>
-      deleteCharacters: (ids: number[]) => Promise<CharacterInfo[]>
-    }
+      getCharacters: () => Promise<CharacterInfo[]>;
+      createCharacter: (
+        name: string,
+        comments: string,
+        groups: number[],
+      ) => Promise<CharacterInfo>;
+      deleteCharacters: (ids: number[]) => Promise<CharacterInfo[]>;
+
+      getGroups: () => Promise<Group[]>;
+      createGroup: (name: string, comments: string) => Promise<Group>;
+      deleteGroups: (ids: number[]) => Promise<Group>;
+    };
   }
 }
 
-export {}
+export {};

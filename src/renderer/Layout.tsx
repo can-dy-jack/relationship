@@ -42,11 +42,11 @@ export default function LayoutComponent({ children }) {
               icon: <UsergroupAddOutlined />,
               label: <Link to="/groups">人物分组</Link>,
             },
-            {
-              key: '4',
-              icon: <UsergroupAddOutlined />,
-              label: <Link to="/groups">人物关系</Link>,
-            },
+            // {
+            //   key: '4',
+            //   icon: <UsergroupAddOutlined />,
+            //   label: <Link to="/groups">人物关系</Link>,
+            // },
           ]}
         />
       </Sider>
