@@ -48,6 +48,7 @@ export default function LayoutComponent({ children }) {
             //   label: <Link to="/groups">人物关系</Link>,
             // },
           ]}
+          onChange={() => {}}
         />
       </Sider>
       <Layout>

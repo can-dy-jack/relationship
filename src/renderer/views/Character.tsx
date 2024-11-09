@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Character, Group } from '@prisma/client';
 import {
   Button,
@@ -11,6 +11,7 @@ import {
   Form,
   Input,
   Select,
+  Typography,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useTableScroll } from '../hooks';
@@ -23,6 +24,7 @@ function Page() {
   const [form] = Form.useForm();
   const [mode, setMode] = useState<'VIEW' | 'EDIT' | 'ADD'>('VIEW');
   const [curFormdata, setCurFormdata] = useState<any>({});
+  const [curId, setCurId] = useState();
 
   const [options, setOptions] = useState<any[]>([]);
 
@@ -31,7 +33,7 @@ function Page() {
       .getGroups()
       .then((res: Group[]) => {
         return setOptions(
-          res.map((item) => ({ value: item.id, label: item.name })),
+          res.map((item) => ({ value: item.id, label: item.name, ...item })),
         );
       })
       .catch(() => {});
@@ -45,16 +47,17 @@ function Page() {
       .then((res: Character[]) => {
         setData(res);
         setLoading(false);
+        setCurId(undefined);
         return false;
       })
       .catch(() => {});
   };
 
   const handleOk = () => {
-    if (mode === 'ADD') {
-      form
-        .validateFields({ validateOnly: true })
-        .then(() => {
+    form
+      .validateFields({ validateOnly: true })
+      .then(() => {
+        if (mode === 'ADD') {
           window.apis
             .createCharacter(
               curFormdata?.name,
@@ -69,13 +72,28 @@ function Page() {
               return true;
             })
             .catch(message.error);
-          return true;
-        })
-        .catch(() => {});
-    } else if (mode === 'EDIT') {
-      // TODO 更新
-    }
-    // setIsModalOpen(false)
+        } else {
+          debugger
+          window.apis
+            .updateCharacter(
+              curId!,
+              curFormdata?.name,
+              curFormdata.comments,
+              curFormdata.groups || [],
+            )
+            .then(() => {
+              setIsModalOpen(false);
+              form.resetFields();
+              getData();
+              message.success('更新成功！');
+              return true;
+            })
+            .catch(message.error);
+        }
+        return true;
+      })
+      .catch(() => {});
+    setCurId(undefined);
   };
   const onValuesChange = (_: any, d: any) => {
     setCurFormdata(d);
@@ -86,6 +104,7 @@ function Page() {
     form.resetFields();
     setIsModalOpen(false);
     setMode('VIEW');
+    setCurId(undefined);
   };
 
   const createData = () => {
@@ -127,7 +146,12 @@ function Page() {
   };
 
   const editItem = (d: any) => {
-    form.setFieldsValue(d);
+    const item = { ...d }; // 很重要，不要改变原数据
+    if (item.groups) {
+      item.groups = item.groups.map((item2: any) => item2.groupId);
+    }
+    setCurId(d.id);
+    form.setFieldsValue(item);
     setIsModalOpen(true);
     setMode('EDIT');
   };
@@ -140,10 +164,14 @@ function Page() {
       title: '所属分组',
       dataIndex: 'groups',
       render: (d: any) => {
-        console.log(d)
-        return (<div>2333</div>)
+        return d.map((item: any, index: number) => (
+          <span>
+            {index > 0 ? ',' : ''}
+            {item.group.name}
+          </span>
+        ));
       },
-    }, // TODO
+    },
     {
       title: '操作列',
       key: 'tags',
@@ -220,7 +248,7 @@ function Page() {
           rowKey="id"
           bordered
           scroll={{
-            y: tableSrcollHeight
+            y: tableSrcollHeight,
           }}
         />
       </Flex>
@@ -253,6 +281,15 @@ function Page() {
               defaultValue={[]}
               // onChange={handleChange}
               options={options}
+              // eslint-disable-next-line react/no-unstable-nested-components
+              optionRender={(option) => (
+                <Space direction="vertical">
+                  <Typography.Text>{option.data.name}</Typography.Text>
+                  <Typography.Text type="secondary">
+                    {option.data.comments}
+                  </Typography.Text>
+                </Space>
+              )}
             />
           </Form.Item>
         </Form>

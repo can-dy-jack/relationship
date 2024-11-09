@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export const useTableScroll = (params: {
   extraHeight?: number;
@@ -18,13 +18,17 @@ export const useTableScroll = (params: {
             .getElementById(id)
             ?.getElementsByClassName('ant-table-thead')[0]
         : null;
-    else tHeader = document.getElementsByClassName('ant-table-thead')[0];
+    else {
+      tHeader = document.getElementsByClassName('ant-table-thead')[0];
+    }
 
     // 获取表格header底部距离屏幕顶部的距离
     const tHeaderBottom = tHeader ? tHeader.getBoundingClientRect().bottom : 0;
     // 使用 calc 属性计算出表格滚动高度
     setTableSrcollHeight(`calc(100vh - ${tHeaderBottom + extraHeight}px)`);
-  }, []);
+  }, [params]);
 
   return tableSrcollHeight;
 };
+
+export default useTableScroll;

@@ -24,6 +24,7 @@ function Page() {
   const [form] = Form.useForm();
   const [mode, setMode] = useState<'VIEW' | 'EDIT' | 'ADD'>('VIEW');
   const [curFormdata, setCurFormdata] = useState<any>({});
+  const [curId, setCurId] = useState();
 
   const getData = () => {
     // TODO 不要手动查询所有 - 分页
@@ -33,6 +34,7 @@ function Page() {
       .then((res: Group[]) => {
         setData(res);
         setLoading(false);
+        setCurId(undefined);
         return false;
       })
       .catch(() => {});
@@ -56,8 +58,23 @@ function Page() {
           return true;
         })
         .catch(() => {});
-    } else if (mode === 'EDIT') {
-      // TODO 更新
+    } else if (mode === 'EDIT' && curId) {
+      form
+        .validateFields({ validateOnly: true })
+        .then(() => {
+          window.apis
+            .updateGroup(curId, curFormdata?.name, curFormdata.comments)
+            .then(() => {
+              setIsModalOpen(false);
+              form.resetFields();
+              getData();
+              message.success('新增成功！');
+              return true;
+            })
+            .catch(message.error);
+          return true;
+        })
+        .catch(() => {});
     }
     // setIsModalOpen(false)
   };
@@ -112,6 +129,7 @@ function Page() {
 
   const editItem = (d: any) => {
     form.setFieldsValue(d);
+    setCurId(d.id);
     setIsModalOpen(true);
     setMode('EDIT');
   };

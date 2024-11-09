@@ -19,23 +19,29 @@ export default function InitApis(prisma: PrismaClient) {
   ipcMain.handle(
     'createCharacter',
     async (event, name: string, comments: string, groups: number[]) => {
-      const newCharacter = await prisma.character.create({
-        data: {
-          name,
-          comments,
-        },
-      });
-      groups.forEach((id: number) => { // TODO fail
-        prisma.groupRelation.create({
+      try {
+        const newCharacter = await prisma.character.create({
           data: {
-            characterId: newCharacter.id,
-            groupId: id,
+            name,
+            comments,
           },
         });
-      });
 
-      // event.reply('test2', res);
-      return newCharacter;
+        const groupsData = groups.map((id) => ({
+          characterId: newCharacter.id,
+          groupId: id,
+        }));
+
+        await prisma.groupRelation.createMany({
+          data: groupsData,
+        });
+
+        return true;
+      } catch (e) {
+        // TODO LOG
+        // console.warn(e);
+        return new Error('新增失败👀');
+      }
     },
   );
 
@@ -48,32 +54,56 @@ export default function InitApis(prisma: PrismaClient) {
       comments: string,
       groups: number[],
     ) => {
-      await prisma.character.update({
-        data: {
-          name,
-          comments,
-        },
-        where: {
-          id,
-        },
-      });
-
-      prisma.groupRelation.deleteMany({
-        where: {
-          characterId: id,
-        },
-      });
-
-      groups.forEach((item: number) => {
-        prisma.groupRelation.create({
+      try {
+        await prisma.character.update({
           data: {
-            characterId: id,
-            groupId: item,
+            name,
+            comments,
+          },
+          where: {
+            id,
           },
         });
-      });
 
-      return true;
+        const oldRelations = await prisma.groupRelation.findMany({
+          where: {
+            characterId: id,
+          },
+        });
+
+        const newIds = new Set(groups); // [1,4]
+        const oldIds = new Set(oldRelations.map((item) => item.groupId)); // [1, 3]
+
+        const needDeleteIds = oldRelations
+          .filter((item) => !newIds.has(item.groupId))
+          .map((item) => item.groupId); // [3]
+
+        const needAddIds = groups.filter((item) => !oldIds.has(item)); // [4]
+
+        if (needDeleteIds.length > 0) {
+          await prisma.groupRelation.deleteMany({
+            where: {
+              groupId: {
+                in: needDeleteIds,
+              },
+            },
+          });
+        }
+        if (needAddIds.length > 0) {
+          await prisma.groupRelation.createMany({
+            data: needAddIds.map((item) => ({
+              characterId: id,
+              groupId: item,
+            })),
+          });
+        }
+
+        return true;
+      } catch (e) {
+        // TODO LOG
+        // console.warn(e);
+        return new Error('更新失败👀');
+      }
     },
   );
 
