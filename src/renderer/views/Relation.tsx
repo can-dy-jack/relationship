@@ -241,7 +241,7 @@ export default function RelationPage() {
               loading={loading}
               icon={<PlusOutlined />}
             >
-              新增人物
+              新增人物关系
             </Button>
           </Space>
         </Flex>

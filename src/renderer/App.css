@@ -13,21 +13,15 @@ body {
 body, html {
   margin: 0;
   padding: 0;
+  background: transparent;
 }
 
 #root {
   height: 100%;
 }
-/*
-.ant-table-body::-webkit-scrollbar {
-  display: none;
+
+.app-bar {
+  app-region: drag;
+  -webkit-app-region: drag;
 }
-.ant-table-body::-webkit-scrollbar {
-  width: 5px;
-  height: 8px;
-  background-color: #aaa;
-}
-.ant-table-body::-webkit-scrollbar-thumb {
-  background: #000;
-}
- */
+

@@ -63,7 +63,10 @@ export default function LayoutComponent({ children }) {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          className="app-bar"
+          style={{ padding: 0, background: colorBgContainer }}
+        >
           <div
             style={{
               display: 'flex',
@@ -82,9 +85,6 @@ export default function LayoutComponent({ children }) {
             />
             <div>
               人物关系网{current && current.name ? '-' + current.name : ''}
-            </div>
-            <div style={{ flex: 1, textAlign: 'right', marginRight: '20px' }}>
-              @kartjim
             </div>
           </div>
         </Header>

@@ -1,8 +1,9 @@
 {
   "name": "relationship",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "An app for building relationship network.",
   "license": "MIT",
+  "author": "kartjim",
   "main": "./dist/main/main.js",
   "scripts": {
     "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
