@@ -16,6 +16,11 @@ export default function InitApis(prisma: PrismaClient) {
     // event.reply('test', res)
   });
 
+  ipcMain.handle('getCharactersWithoutGroup', async () => {
+    const res = await prisma.character.findMany();
+    return res;
+  });
+
   ipcMain.handle(
     'createCharacter',
     async (event, name: string, comments: string, groups: number[]) => {
@@ -161,5 +166,58 @@ export default function InitApis(prisma: PrismaClient) {
       },
     });
     return popItems;
+  });
+
+  // 关系
+  ipcMain.handle('getRelations', async () => {
+    const res = await prisma.relationship.findMany({
+      include: {
+        character: true,
+        relativeCharactor: true,
+      },
+    });
+    return res;
+  });
+
+  ipcMain.handle(
+    'createRelation',
+    async (
+      e,
+      characterId: number,
+      relativeCharactorId: number,
+      name: string,
+    ) => {
+      const res = await prisma.relationship.create({
+        data: {
+          characterId,
+          relativeCharactorId,
+          relationName: name,
+        },
+      });
+      return res;
+    },
+  );
+
+  ipcMain.handle('updateRelation', async (e, id: number, name: string) => {
+    const res = await prisma.relationship.update({
+      data: {
+        relationName: name,
+      },
+      where: {
+        id,
+      },
+    });
+    return res;
+  });
+
+  ipcMain.handle('deleteRelation', async (e, ids: number[]) => {
+    const res = await prisma.relationship.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+    return res;
   });
 }

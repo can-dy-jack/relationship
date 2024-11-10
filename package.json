@@ -1,7 +1,7 @@
 {
   "name": "relationship",
   "description": "An app for building relationship network.",
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "./.erb/dll/main.bundle.dev.js",
   "scripts": {
@@ -80,7 +80,8 @@
     "electron-updater": "^6.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0"
+    "react-router-dom": "^6.16.0",
+    "relation-graph-react": "^2.2.8"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
@@ -150,7 +151,7 @@
   },
   "build": {
     "productName": "Relationship",
-    "appId": "org.erb.Relationship",
+    "appId": "org.kartjim.Relationship",
     "asar": true,
     "asarUnpack": [
       "**\\*.{node,dll}",
@@ -223,15 +224,7 @@
       "node_modules/@prisma/engines/migration-engine*",
       "node_modules/@prisma/engines/query*",
       "node_modules/@prisma/engines/libquery*"
-    ],
-    "publish": {
-      "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
-    }
-  },
-  "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
+    ]
   },
   "devEngines": {
     "node": ">=14.x",

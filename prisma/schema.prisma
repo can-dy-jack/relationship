@@ -21,6 +21,7 @@ model Character {
   comments  String // 注释
   relations Relationship[]
   groups    GroupRelation[]
+  Relationship Relationship[] @relation(name: "relativeCharactor")
 }
 
 model Relationship {
@@ -28,6 +29,7 @@ model Relationship {
   character           Character @relation(fields: [characterId], references: [id])
   characterId         Int // 人物id
   relativeCharactorId Int // 与 人物id 有关的人物id
+  relativeCharactor  Character @relation(fields: [relativeCharactorId], references: [id], name: "relativeCharactor")
   relationName        String //关系名称
 }
 

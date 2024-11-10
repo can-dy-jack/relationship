@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Character, Group } from '@prisma/client';
+import { Relationship, Character } from '@prisma/client';
 import {
   Button,
   Flex,
@@ -11,13 +11,26 @@ import {
   Form,
   Input,
   Select,
-  Typography,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useTableScroll } from '../hooks';
 
-function Page() {
-  const [data, setData] = useState<Character[]>([]);
+type RelationshipInfo = Relationship & {
+  character: Character;
+  relativeCharactor: Character;
+};
+
+type DataType = {
+  id: number;
+  name: string;
+  charId: number;
+  charactorName: string;
+  reCharId: number;
+  ReCharactorName: string;
+};
+
+export default function RelationPage() {
+  const [data, setData] = useState<DataType[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,22 +43,31 @@ function Page() {
 
   useEffect(() => {
     window.apis
-      .getGroups()
-      .then((res: Group[]) => {
+      .getCharactersWithoutGroup()
+      .then((res: Character[]) => {
         return setOptions(
-          res.map((item) => ({ value: item.id, label: item.name, ...item })),
+          res.map((item) => ({ value: item.id, label: item.name })),
         );
       })
       .catch(() => {});
   }, []);
 
   const getData = () => {
-    // TODO 不要手动查询所有 - 分页
+    // TODO 分页
     setLoading(true);
     window.apis
-      .getCharacters()
-      .then((res: Character[]) => {
-        setData(res);
+      .getRelations()
+      .then((res: RelationshipInfo[]) => {
+        setData(
+          res.map((item) => ({
+            id: item.id,
+            name: item.relationName,
+            charactorName: item.character.name,
+            charId: item.character.id,
+            ReCharactorName: item.relativeCharactor.name,
+            reCharId: item.relativeCharactor.id,
+          })),
+        );
         setLoading(false);
         setCurId(undefined);
         return false;
@@ -59,10 +81,10 @@ function Page() {
       .then(() => {
         if (mode === 'ADD') {
           window.apis
-            .createCharacter(
-              curFormdata?.name,
-              curFormdata.comments,
-              curFormdata.groups || [],
+            .createRelation(
+              curFormdata?.charId,
+              curFormdata.reCharId,
+              curFormdata.name,
             )
             .then(() => {
               setIsModalOpen(false);
@@ -74,12 +96,7 @@ function Page() {
             .catch(message.error);
         } else {
           window.apis
-            .updateCharacter(
-              curId!,
-              curFormdata?.name,
-              curFormdata.comments,
-              curFormdata.groups || [],
-            )
+            .updateRelation(curId!, curFormdata.name)
             .then(() => {
               setIsModalOpen(false);
               form.resetFields();
@@ -125,17 +142,17 @@ function Page() {
 
   const deleteItem = (d: any) => {
     window.apis
-      .deleteCharacters([d.id]) // TODO 可能会因为该人物数据牵扯其他的数据表导致删除失败！
+      .deleteRelation([d.id])
       .then((res: any) => {
         message.success(`成功删除${res.count}条数据`);
         getData();
-        return 0;
+        return true;
       })
       .catch(message.error);
   };
   const deleteItems = () => {
     window.apis
-      .deleteCharacters(selectedRowKeys as number[])
+      .deleteRelation(selectedRowKeys as number[])
       .then((res: any) => {
         message.success(`成功删除${res.count}条数据`);
         getData();
@@ -157,20 +174,9 @@ function Page() {
 
   const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
-    { title: '名字', dataIndex: 'name' },
-    { title: '备注', dataIndex: 'comments' },
-    {
-      title: '所属分组',
-      dataIndex: 'groups',
-      render: (d: any) => {
-        return d.map((item: any, index: number) => (
-          <span key={item.group.name}>
-            {index > 0 ? ',' : ''}
-            {item.group.name}
-          </span>
-        ));
-      },
-    },
+    { title: '人物', dataIndex: 'charactorName' },
+    { title: '相关人物', dataIndex: 'ReCharactorName' },
+    { title: '关系', dataIndex: 'name' },
     {
       title: '操作列',
       key: 'tags',
@@ -265,36 +271,42 @@ function Page() {
           onValuesChange={onValuesChange}
           // style={{ maxWidth: formLayout === 'inline' ? 'none' : 600 }}
         >
-          <Form.Item name="name" label="人物名称" rules={[{ required: true }]}>
-            <Input placeholder="" />
-          </Form.Item>
-          <Form.Item name="comments" label="备注" rules={[{ required: true }]}>
-            <Input.TextArea rows={4} placeholder="备注一下" maxLength={6} />
-          </Form.Item>
-          <Form.Item name="groups" label="所属组">
+          <Form.Item name="charId" label="人物" rules={[{ required: true }]}>
             <Select
-              mode="multiple"
-              allowClear
               style={{ width: '100%' }}
               placeholder="Please select"
-              defaultValue={[]}
-              // onChange={handleChange}
               options={options}
-              // eslint-disable-next-line react/no-unstable-nested-components
-              optionRender={(option) => (
-                <Space direction="vertical">
-                  <Typography.Text>{option.data.name}</Typography.Text>
-                  <Typography.Text type="secondary">
-                    {option.data.comments}
-                  </Typography.Text>
-                </Space>
-              )}
             />
+          </Form.Item>
+          <Form.Item
+            name="reCharId"
+            label="相关人物"
+            dependencies={['charId']}
+            rules={[
+              {
+                required: true,
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('charId') !== value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('不能选择相同的人物'));
+                },
+              }),
+            ]}
+          >
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Please select"
+              options={options}
+            />
+          </Form.Item>
+          <Form.Item name="name" label="关系" rules={[{ required: true }]}>
+            <Input.TextArea rows={4} placeholder="" maxLength={6} />
           </Form.Item>
         </Form>
       </Modal>
     </div>
   );
 }
-
-export default Page;
