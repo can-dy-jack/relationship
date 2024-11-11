@@ -18,7 +18,9 @@ type RelationshipInfo = Relationship & {
 declare global {
   interface Window {
     apis: {
-      getCharacters: () => Promise<CharacterInfo[]>;
+      getCharacters: (
+        searchParams: any,
+      ) => Promise<{ total: number; data: CharacterInfo[] }>;
       getCharactersWithoutGroup: () => Promise<Character[]>;
       createCharacter: (
         name: string,

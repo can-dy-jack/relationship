@@ -1,8 +1,10 @@
 // const { contextBridge, ipcRenderer } = require('electron');
 import { contextBridge, ipcRenderer } from 'electron';
+import { TableSearchParams } from './type';
 
 contextBridge.exposeInMainWorld('apis', {
-  getCharacters: () => ipcRenderer.invoke('getCharacters'),
+  getCharacters: (searchParams: TableSearchParams) =>
+    ipcRenderer.invoke('getCharacters', searchParams),
   getCharactersWithoutGroup: () =>
     ipcRenderer.invoke('getCharactersWithoutGroup'),
   // 前端： window.apis.getCharacters().then(console.log)

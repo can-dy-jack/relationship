@@ -1,20 +1,67 @@
 import { PrismaClient } from '@prisma/client';
 import { ipcMain } from 'electron';
+import { TableSearchParams } from './type';
 
 export default function InitApis(prisma: PrismaClient) {
-  ipcMain.handle('getCharacters', async () => {
-    const res = await prisma.character.findMany({
-      include: {
-        groups: {
-          include: {
-            group: true,
+  ipcMain.handle(
+    'getCharacters',
+    async (e, searchParams: TableSearchParams) => {
+      const { pagination, sortOrder, sortField, searchStr } = searchParams;
+      const { current, pageSize } = pagination || {};
+
+      const sql: any = {
+        include: {
+          groups: {
+            include: {
+              group: true,
+            },
           },
+          _count: true,
         },
-      },
-    });
-    return res;
-    // event.reply('test', res)
-  });
+      };
+
+      // 分页
+      if (pagination && current !== undefined && pageSize !== undefined) {
+        sql.skip = (current - 1) * pageSize;
+        sql.take = pageSize;
+      }
+
+      // 过滤
+      if (searchStr) {
+        sql.where = {
+          OR: [
+            {
+              name: {
+                contains: searchStr,
+              },
+            },
+            {
+              comments: {
+                contains: searchStr,
+              },
+            },
+          ],
+        };
+      }
+
+      // 排序
+      if (sortField && sortOrder) {
+        sql.orderBy = [
+          {
+            [sortField]: sortOrder === 'ascend' ? 'asc' : 'desc',
+          },
+        ];
+      }
+
+      const data = await prisma.character.findMany(sql);
+      const total = await prisma.character.count();
+
+      return {
+        total,
+        data,
+      };
+    },
+  );
 
   ipcMain.handle('getCharactersWithoutGroup', async () => {
     const res = await prisma.character.findMany();
