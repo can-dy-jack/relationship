@@ -20,7 +20,8 @@ contextBridge.exposeInMainWorld('apis', {
     ipcRenderer.invoke('deleteCharacters', ids),
 
   // 分组api
-  getGroups: () => ipcRenderer.invoke('getGroups'),
+  getGroups: (searchParams: TableSearchParams) =>
+    ipcRenderer.invoke('getGroups', searchParams),
   createGroup: (name: string, comments: string) =>
     ipcRenderer.invoke('createGroup', name, comments),
   updateGroup: (id: number, name: string, comments: string) =>
@@ -28,7 +29,8 @@ contextBridge.exposeInMainWorld('apis', {
   deleteGroups: (ids: number[]) => ipcRenderer.invoke('deleteGroups', ids),
 
   // 人物关系
-  getRelations: () => ipcRenderer.invoke('getRelations'),
+  getRelations: (searchParams: TableSearchParams) =>
+    ipcRenderer.invoke('getRelations', searchParams),
   createRelation: (
     characterId: number,
     relativeCharactorId: number,

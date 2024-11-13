@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Relationship, Character } from '@prisma/client';
+import { Character } from '@prisma/client';
 import {
   Button,
   Flex,
@@ -11,14 +11,13 @@ import {
   Form,
   Input,
   Select,
+  TablePaginationConfig,
+  TableProps,
+  GetProp,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { SorterResult } from 'antd/es/table/interface';
 import { useTableScroll } from '../hooks';
-
-type RelationshipInfo = Relationship & {
-  character: Character;
-  relativeCharactor: Character;
-};
 
 type DataType = {
   id: number;
@@ -28,6 +27,14 @@ type DataType = {
   reCharId: number;
   ReCharactorName: string;
 };
+
+interface TableSearchParams {
+  pagination?: TablePaginationConfig;
+  sortField?: SorterResult<any>['field'];
+  sortOrder?: SorterResult<any>['order'];
+  filters?: Parameters<GetProp<TableProps, 'onChange'>>[1];
+  searchStr?: string;
+}
 
 export default function RelationPage() {
   const [data, setData] = useState<DataType[]>([]);
@@ -40,6 +47,13 @@ export default function RelationPage() {
   const [curId, setCurId] = useState();
 
   const [options, setOptions] = useState<any[]>([]);
+
+  const [tableParams, setTableParams] = useState<TableSearchParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+    },
+  });
 
   useEffect(() => {
     window.apis
@@ -56,10 +70,10 @@ export default function RelationPage() {
     // TODO 分页
     setLoading(true);
     window.apis
-      .getRelations()
-      .then((res: RelationshipInfo[]) => {
+      .getRelations(tableParams)
+      .then((res) => {
         setData(
-          res.map((item) => ({
+          res.data.map((item) => ({
             id: item.id,
             name: item.relationName,
             charactorName: item.character.name,
@@ -68,6 +82,13 @@ export default function RelationPage() {
             reCharId: item.relativeCharactor.id,
           })),
         );
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: res.total,
+          },
+        });
         setLoading(false);
         setCurId(undefined);
         return false;
@@ -130,7 +151,14 @@ export default function RelationPage() {
 
   useEffect(() => {
     getData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableParams.pagination?.current,
+    tableParams.pagination?.pageSize,
+    tableParams?.sortOrder,
+    tableParams?.sortField,
+    tableParams.searchStr,
+  ]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -174,9 +202,9 @@ export default function RelationPage() {
 
   const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
-    { title: '人物', dataIndex: 'charactorName' },
-    { title: '相关人物', dataIndex: 'ReCharactorName' },
-    { title: '关系', dataIndex: 'name' },
+    { title: '人物', dataIndex: 'charactorName', sorter: true },
+    { title: '相关人物', dataIndex: 'ReCharactorName', sorter: true },
+    { title: '关系', dataIndex: 'name', sorter: true },
     {
       title: '操作列',
       key: 'tags',
@@ -209,6 +237,30 @@ export default function RelationPage() {
   const hasSelected = selectedRowKeys.length > 0;
   const tableSrcollHeight = useTableScroll({ extraHeight: 100 });
 
+  const onSearch = (value: string) => {
+    setTableParams((prev) => ({
+      ...prev,
+      searchStr: value,
+    }));
+  };
+  const handleTableChange: TableProps<any>['onChange'] = (
+    pagination,
+    filters,
+    sorter,
+  ) => {
+    setTableParams((pre) => ({
+      ...pre,
+      pagination,
+      filters,
+      sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+      sortField: Array.isArray(sorter) ? undefined : sorter.field,
+    }));
+    // `dataSource` is useless since `pageSize` changed
+    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
+
   return (
     <div>
       <Flex gap="middle" vertical>
@@ -218,6 +270,11 @@ export default function RelationPage() {
           </div>
 
           <Space>
+            <Input.Search
+              placeholder="搜索一下"
+              onSearch={onSearch}
+              // style={{ width: 200 }}
+            />
             <Popconfirm
               title="确定删除？"
               description="注意：删除后无法还原！"
@@ -255,6 +312,8 @@ export default function RelationPage() {
           scroll={{
             y: tableSrcollHeight,
           }}
+          onChange={handleTableChange}
+          pagination={tableParams.pagination}
         />
       </Flex>
 

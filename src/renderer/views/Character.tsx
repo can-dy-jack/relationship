@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Character, Group } from '@prisma/client';
+import { Character } from '@prisma/client';
 import {
   Button,
   Flex,
@@ -49,10 +49,14 @@ function Page() {
 
   useEffect(() => {
     window.apis
-      .getGroups()
-      .then((res: Group[]) => {
+      .getGroups({})
+      .then((res) => {
         return setOptions(
-          res.map((item) => ({ value: item.id, label: item.name, ...item })),
+          res.data.map((item) => ({
+            value: item.id,
+            label: item.name,
+            ...item,
+          })),
         );
       })
       .catch(() => {});
@@ -63,13 +67,6 @@ function Page() {
     window.apis
       .getCharacters(tableParams)
       .then((res: { total: number; data: Character[] }) => {
-        console.log({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: res.total,
-          },
-        });
         setData(res.data);
         setTableParams({
           ...tableParams,
