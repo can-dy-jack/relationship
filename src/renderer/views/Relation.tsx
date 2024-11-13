@@ -67,7 +67,6 @@ export default function RelationPage() {
   }, []);
 
   const getData = () => {
-    // TODO 分页
     setLoading(true);
     window.apis
       .getRelations(tableParams)
