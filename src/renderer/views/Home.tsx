@@ -24,9 +24,14 @@ export default function Home() {
       .catch(console.warn);
 
     window.apis
-      .getRelations()
-      .then((res: Relationship[]) => {
-        setRelations(res);
+      .getRelations({
+        pagination: {
+          current: 1,
+          pageSize: 99999,
+        },
+      })
+      .then((res) => {
+        setRelations(res.data);
         return true;
       })
       // eslint-disable-next-line no-console

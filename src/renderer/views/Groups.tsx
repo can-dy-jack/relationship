@@ -9,12 +9,24 @@ import {
   Table,
   Form,
   Input,
+  TablePaginationConfig,
+  TableProps,
+  GetProp,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Group } from '@prisma/client';
+import { SorterResult } from 'antd/es/table/interface';
 import { useTableScroll } from '../hooks';
 
 const { TextArea } = Input;
+
+interface TableSearchParams {
+  pagination?: TablePaginationConfig;
+  sortField?: SorterResult<any>['field'];
+  sortOrder?: SorterResult<any>['order'];
+  filters?: Parameters<GetProp<TableProps, 'onChange'>>[1];
+  searchStr?: string;
+}
 
 function Page() {
   const [data, setData] = useState<Group[]>([]);
@@ -25,14 +37,26 @@ function Page() {
   const [mode, setMode] = useState<'VIEW' | 'EDIT' | 'ADD'>('VIEW');
   const [curFormdata, setCurFormdata] = useState<any>({});
   const [curId, setCurId] = useState();
+  const [tableParams, setTableParams] = useState<TableSearchParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+    },
+  });
 
   const getData = () => {
-    // TODO 不要手动查询所有 - 分页
     setLoading(true);
     window.apis
-      .getGroups()
-      .then((res: Group[]) => {
-        setData(res);
+      .getGroups(tableParams)
+      .then((res) => {
+        setData(res.data);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: res.total,
+          },
+        });
         setLoading(false);
         setCurId(undefined);
         return false;
@@ -96,7 +120,14 @@ function Page() {
 
   useEffect(() => {
     getData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableParams.pagination?.current,
+    tableParams.pagination?.pageSize,
+    tableParams?.sortOrder,
+    tableParams?.sortField,
+    tableParams.searchStr,
+  ]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -134,10 +165,10 @@ function Page() {
     setMode('EDIT');
   };
 
-  const columns = [
+  const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
-    { title: '名字', dataIndex: 'name' },
-    { title: '备注', dataIndex: 'comments' },
+    { title: '名字', dataIndex: 'name', sorter: true },
+    { title: '备注', dataIndex: 'comments', sorter: true },
     {
       title: '操作列',
       key: 'tags',
@@ -170,6 +201,30 @@ function Page() {
   const hasSelected = selectedRowKeys.length > 0;
   const tableSrcollHeight = useTableScroll({ extraHeight: 100 });
 
+  const onSearch = (value: string) => {
+    setTableParams((prev) => ({
+      ...prev,
+      searchStr: value,
+    }));
+  };
+  const handleTableChange: TableProps<any>['onChange'] = (
+    pagination,
+    filters,
+    sorter,
+  ) => {
+    setTableParams((pre) => ({
+      ...pre,
+      pagination,
+      filters,
+      sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+      sortField: Array.isArray(sorter) ? undefined : sorter.field,
+    }));
+    // `dataSource` is useless since `pageSize` changed
+    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
+
   return (
     <div>
       <Flex gap="middle" vertical>
@@ -179,6 +234,11 @@ function Page() {
           </div>
 
           <Space>
+            <Input.Search
+              placeholder="搜索一下"
+              onSearch={onSearch}
+              // style={{ width: 200 }}
+            />
             <Popconfirm
               title="确定删除？"
               description="注意：删除后无法还原！"
@@ -214,8 +274,10 @@ function Page() {
           rowKey="id"
           bordered
           scroll={{
-            y: tableSrcollHeight
+            y: tableSrcollHeight,
           }}
+          onChange={handleTableChange}
+          pagination={tableParams.pagination}
         />
       </Flex>
 

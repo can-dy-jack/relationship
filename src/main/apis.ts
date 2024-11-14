@@ -1,20 +1,66 @@
 import { PrismaClient } from '@prisma/client';
 import { ipcMain } from 'electron';
+import { TableSearchParams } from './type';
 
 export default function InitApis(prisma: PrismaClient) {
-  ipcMain.handle('getCharacters', async () => {
-    const res = await prisma.character.findMany({
-      include: {
-        groups: {
-          include: {
-            group: true,
+  ipcMain.handle(
+    'getCharacters',
+    async (e, searchParams: TableSearchParams) => {
+      const { pagination, sortOrder, sortField, searchStr } = searchParams;
+      const { current, pageSize } = pagination || {};
+
+      const sql: any = {
+        include: {
+          groups: {
+            include: {
+              group: true,
+            },
           },
         },
-      },
-    });
-    return res;
-    // event.reply('test', res)
-  });
+      };
+
+      // 分页
+      if (pagination && current !== undefined && pageSize !== undefined) {
+        sql.skip = (current - 1) * pageSize;
+        sql.take = pageSize;
+      }
+
+      // 过滤
+      if (searchStr) {
+        sql.where = {
+          OR: [
+            {
+              name: {
+                contains: searchStr,
+              },
+            },
+            {
+              comments: {
+                contains: searchStr,
+              },
+            },
+          ],
+        };
+      }
+
+      // 排序
+      if (sortField && sortOrder) {
+        sql.orderBy = [
+          {
+            [sortField]: sortOrder === 'ascend' ? 'asc' : 'desc',
+          },
+        ];
+      }
+
+      const data = await prisma.character.findMany(sql);
+      const total = await prisma.character.count();
+
+      return {
+        total,
+        data,
+      };
+    },
+  );
 
   ipcMain.handle('getCharactersWithoutGroup', async () => {
     const res = await prisma.character.findMany();
@@ -124,9 +170,52 @@ export default function InitApis(prisma: PrismaClient) {
   });
 
   // 分组
-  ipcMain.handle('getGroups', async () => {
-    const res = await prisma.group.findMany();
-    return res;
+  ipcMain.handle('getGroups', async (e, searchParams: TableSearchParams) => {
+    const { pagination, sortOrder, sortField, searchStr } = searchParams;
+    const { current, pageSize } = pagination || {};
+
+    const sql: any = {};
+
+    // 分页
+    if (pagination && current !== undefined && pageSize !== undefined) {
+      sql.skip = (current - 1) * pageSize;
+      sql.take = pageSize;
+    }
+
+    // 过滤
+    if (searchStr) {
+      sql.where = {
+        OR: [
+          {
+            name: {
+              contains: searchStr,
+            },
+          },
+          {
+            comments: {
+              contains: searchStr,
+            },
+          },
+        ],
+      };
+    }
+
+    // 排序
+    if (sortField && sortOrder) {
+      sql.orderBy = [
+        {
+          [sortField]: sortOrder === 'ascend' ? 'asc' : 'desc',
+        },
+      ];
+    }
+
+    const data = await prisma.group.findMany(sql);
+    const total = await prisma.group.count();
+
+    return {
+      total,
+      data,
+    };
   });
   ipcMain.handle(
     'createGroup',
@@ -169,14 +258,48 @@ export default function InitApis(prisma: PrismaClient) {
   });
 
   // 关系
-  ipcMain.handle('getRelations', async () => {
-    const res = await prisma.relationship.findMany({
+  ipcMain.handle('getRelations', async (e, searchParams: TableSearchParams) => {
+    const { pagination, sortOrder, sortField, searchStr } = searchParams;
+    const { current, pageSize } = pagination || {};
+
+    const sql: any = {
       include: {
         character: true,
         relativeCharactor: true,
       },
-    });
-    return res;
+    };
+
+    // 分页
+    if (pagination && current !== undefined && pageSize !== undefined) {
+      sql.skip = (current - 1) * pageSize;
+      sql.take = pageSize;
+    }
+
+    // 过滤
+    if (searchStr) {
+      sql.where = {
+        relationName: {
+          contains: searchStr,
+        },
+      };
+    }
+
+    // 排序
+    if (sortField && sortOrder) {
+      sql.orderBy = [
+        {
+          relationName: sortOrder === 'ascend' ? 'asc' : 'desc',
+        },
+      ];
+    }
+
+    const data = await prisma.relationship.findMany(sql);
+    const total = await prisma.relationship.count();
+
+    return {
+      total,
+      data,
+    };
   });
 
   ipcMain.handle(

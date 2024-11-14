@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Character, Group } from '@prisma/client';
+import { Character } from '@prisma/client';
 import {
   Button,
   Flex,
@@ -12,9 +12,21 @@ import {
   Input,
   Select,
   Typography,
+  TablePaginationConfig,
+  GetProp,
+  TableProps,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import type { SorterResult } from 'antd/es/table/interface';
 import { useTableScroll } from '../hooks';
+
+interface TableSearchParams {
+  pagination?: TablePaginationConfig;
+  sortField?: SorterResult<any>['field'];
+  sortOrder?: SorterResult<any>['order'];
+  filters?: Parameters<GetProp<TableProps, 'onChange'>>[1];
+  searchStr?: string;
+}
 
 function Page() {
   const [data, setData] = useState<Character[]>([]);
@@ -28,30 +40,58 @@ function Page() {
 
   const [options, setOptions] = useState<any[]>([]);
 
+  const [tableParams, setTableParams] = useState<TableSearchParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+    },
+  });
+
   useEffect(() => {
     window.apis
-      .getGroups()
-      .then((res: Group[]) => {
+      .getGroups({})
+      .then((res) => {
         return setOptions(
-          res.map((item) => ({ value: item.id, label: item.name, ...item })),
+          res.data.map((item) => ({
+            value: item.id,
+            label: item.name,
+            ...item,
+          })),
         );
       })
       .catch(() => {});
   }, []);
 
   const getData = () => {
-    // TODO 不要手动查询所有 - 分页
     setLoading(true);
     window.apis
-      .getCharacters()
-      .then((res: Character[]) => {
-        setData(res);
+      .getCharacters(tableParams)
+      .then((res: { total: number; data: Character[] }) => {
+        setData(res.data);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: res.total,
+          },
+        });
         setLoading(false);
         setCurId(undefined);
         return false;
       })
       .catch(() => {});
   };
+
+  useEffect(() => {
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableParams.pagination?.current,
+    tableParams.pagination?.pageSize,
+    tableParams?.sortOrder,
+    tableParams?.sortField,
+    tableParams.searchStr,
+  ]);
 
   const handleOk = () => {
     form
@@ -111,10 +151,6 @@ function Page() {
     setMode('ADD');
   };
 
-  useEffect(() => {
-    getData();
-  }, []);
-
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
@@ -157,8 +193,8 @@ function Page() {
 
   const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
-    { title: '名字', dataIndex: 'name' },
-    { title: '备注', dataIndex: 'comments' },
+    { title: '名字', dataIndex: 'name', sorter: true },
+    { title: '备注', dataIndex: 'comments', sorter: true },
     {
       title: '所属分组',
       dataIndex: 'groups',
@@ -203,6 +239,32 @@ function Page() {
   const hasSelected = selectedRowKeys.length > 0;
   const tableSrcollHeight = useTableScroll({ extraHeight: 100 });
 
+  const onSearch = (value: string) => {
+    setTableParams((prev) => ({
+      ...prev,
+      searchStr: value,
+    }));
+  };
+
+  const handleTableChange: TableProps<any>['onChange'] = (
+    pagination,
+    filters,
+    sorter,
+  ) => {
+    setTableParams((pre) => ({
+      ...pre,
+      pagination,
+      filters,
+      sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+      sortField: Array.isArray(sorter) ? undefined : sorter.field,
+    }));
+
+    // `dataSource` is useless since `pageSize` changed
+    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
+
   return (
     <div>
       <Flex gap="middle" vertical>
@@ -212,8 +274,13 @@ function Page() {
           </div>
 
           <Space>
+            <Input.Search
+              placeholder="搜索一下"
+              onSearch={onSearch}
+              // style={{ width: 200 }}
+            />
             <Popconfirm
-              title="确定删除？"
+              title={`确定删除${selectedRowKeys.length}条数据？`}
               description="注意：删除后无法还原！"
               onConfirm={deleteItems}
               onCancel={() => message.error('取消')}
@@ -249,6 +316,8 @@ function Page() {
           scroll={{
             y: tableSrcollHeight,
           }}
+          onChange={handleTableChange}
+          pagination={tableParams.pagination}
         />
       </Flex>
 

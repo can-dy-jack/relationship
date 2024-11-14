@@ -18,7 +18,9 @@ type RelationshipInfo = Relationship & {
 declare global {
   interface Window {
     apis: {
-      getCharacters: () => Promise<CharacterInfo[]>;
+      getCharacters: (
+        searchParams: any,
+      ) => Promise<{ total: number; data: CharacterInfo[] }>;
       getCharactersWithoutGroup: () => Promise<Character[]>;
       createCharacter: (
         name: string,
@@ -33,7 +35,9 @@ declare global {
       ) => Promise<CharacterInfo>;
       deleteCharacters: (ids: number[]) => Promise<CharacterInfo[]>;
 
-      getGroups: () => Promise<Group[]>;
+      getGroups: (
+        searchParams: any,
+      ) => Promise<{ total: number; data: Group[] }>;
       createGroup: (name: string, comments: string) => Promise<Group>;
       updateGroup: (
         id: number,
@@ -42,7 +46,9 @@ declare global {
       ) => Promise<Group>;
       deleteGroups: (ids: number[]) => Promise<Group>;
 
-      getRelations: () => Promise<RelationshipInfo[]>;
+      getRelations: (
+        searchParams: any,
+      ) => Promise<{ total: number; data: RelationshipInfo[] }>;
       createRelation: (
         characterId: number,
         relativeCharactorId: number,
