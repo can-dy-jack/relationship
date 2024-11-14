@@ -11,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 
+// import iconPath from './icon.png';
+
 const { Header, Sider, Content } = Layout;
 
 export default function LayoutComponent({ children }) {
@@ -19,7 +21,7 @@ export default function LayoutComponent({ children }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const [current, serCurrent] = useState({});
+  const [current, serCurrent] = useState<{ name?: string }>({});
 
   const menuItems = [
     {
@@ -51,7 +53,6 @@ export default function LayoutComponent({ children }) {
   return (
     <Layout style={{ height: '100%' }}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
           mode="inline"
@@ -63,10 +64,7 @@ export default function LayoutComponent({ children }) {
         />
       </Sider>
       <Layout>
-        <Header
-          className="app-bar"
-          style={{ padding: 0, background: colorBgContainer }}
-        >
+        <Header style={{ padding: 0, background: colorBgContainer }}>
           <div
             style={{
               display: 'flex',
@@ -83,8 +81,8 @@ export default function LayoutComponent({ children }) {
                 height: 64,
               }}
             />
-            <div>
-              人物关系网{current && current.name ? '-' + current.name : ''}
+            <div style={{ flex: 1 }} className="app-bar">
+              人物关系网{current && current.name ? ` - ${current.name}` : ''}
             </div>
           </div>
         </Header>
