@@ -201,8 +201,8 @@ export default function RelationPage() {
 
   const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
-    { title: '人物', dataIndex: 'charactorName', sorter: true },
-    { title: '相关人物', dataIndex: 'ReCharactorName', sorter: true },
+    { title: '人物', dataIndex: 'charactorName' },
+    { title: '相关人物', dataIndex: 'ReCharactorName' },
     { title: '关系', dataIndex: 'name', sorter: true },
     {
       title: '操作列',

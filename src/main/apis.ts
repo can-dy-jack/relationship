@@ -275,7 +275,7 @@ export default function InitApis(prisma: PrismaClient) {
       sql.take = pageSize;
     }
 
-    // TODO 过滤 根据人物、相关人物查询
+    // 过滤
     if (searchStr) {
       sql.where = {
         relationName: {
@@ -284,14 +284,14 @@ export default function InitApis(prisma: PrismaClient) {
       };
     }
 
-    // TODO 排序
-    // if (sortField && sortOrder) {
-    //   sql.orderBy = [
-    //     {
-    //       [sortField]: sortOrder === 'ascend' ? 'asc' : 'desc',
-    //     },
-    //   ];
-    // }
+    // 排序
+    if (sortField && sortOrder) {
+      sql.orderBy = [
+        {
+          relationName: sortOrder === 'ascend' ? 'asc' : 'desc',
+        },
+      ];
+    }
 
     const data = await prisma.relationship.findMany(sql);
     const total = await prisma.relationship.count();
