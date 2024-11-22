@@ -298,7 +298,7 @@ function Page() {
             <Input placeholder="" />
           </Form.Item>
           <Form.Item name="comments" label="备注" rules={[{ required: true }]}>
-            <TextArea rows={4} placeholder="备注一下" maxLength={6} />
+            <TextArea rows={4} placeholder="备注一下" />
           </Form.Item>
         </Form>
       </Modal>

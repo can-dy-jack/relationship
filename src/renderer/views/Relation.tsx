@@ -361,7 +361,7 @@ export default function RelationPage() {
             />
           </Form.Item>
           <Form.Item name="name" label="关系" rules={[{ required: true }]}>
-            <Input.TextArea rows={4} placeholder="" maxLength={6} />
+            <Input.TextArea rows={4} placeholder="" />
           </Form.Item>
         </Form>
       </Modal>
