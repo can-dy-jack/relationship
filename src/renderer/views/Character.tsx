@@ -19,6 +19,7 @@ import {
 import { PlusOutlined } from '@ant-design/icons';
 import type { SorterResult } from 'antd/es/table/interface';
 import { useTableScroll } from '../hooks';
+import EditorComp from '../components/Editor';
 
 interface TableSearchParams {
   pagination?: TablePaginationConfig;
@@ -194,7 +195,15 @@ function Page() {
   const columns: any = [
     { title: 'id', dataIndex: 'id', width: 80 },
     { title: '名字', dataIndex: 'name', sorter: true },
-    { title: '备注', dataIndex: 'comments', sorter: true },
+    {
+      title: '备注',
+      dataIndex: 'comments',
+      sorter: true,
+      render: (d: any) => {
+        // eslint-disable-next-line react/no-danger
+        return <div dangerouslySetInnerHTML={{ __html: d }} />;
+      },
+    },
     {
       title: '所属分组',
       dataIndex: 'groups',
@@ -327,6 +336,7 @@ function Page() {
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
+        // TODO getContainer
       >
         <Form
           layout="vertical"
@@ -338,7 +348,9 @@ function Page() {
             <Input placeholder="" />
           </Form.Item>
           <Form.Item name="comments" label="备注" rules={[{ required: true }]}>
-            <Input.TextArea rows={4} placeholder="备注一下" maxLength={6} />
+            {/* <Input.TextArea rows={4} placeholder="备注一下" /> */}
+
+            <EditorComp />
           </Form.Item>
           <Form.Item name="groups" label="所属组">
             <Select
