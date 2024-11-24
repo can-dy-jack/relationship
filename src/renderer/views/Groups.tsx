@@ -180,12 +180,12 @@ function Page() {
           </Button>
           <Popconfirm
             title="确定删除？"
-            description="注意：删除后无法还原！"
+            description="注意：该分组的信息和属于该分组的人物的分组信息都将被删除，且删除后无法还原！"
             onConfirm={() => deleteItem(d)}
             onCancel={() => message.error('取消')}
-            okText="Yes"
+            okText="确认"
             placement="left"
-            cancelText="No"
+            cancelText="关闭"
           >
             <Button type="link" danger loading={loading}>
               删除
@@ -241,11 +241,11 @@ function Page() {
             />
             <Popconfirm
               title="确定删除？"
-              description="注意：删除后无法还原！"
+              description="注意：所有分组的信息和属于该分组的人物的分组信息都将被删除，且删除后无法还原！"
               onConfirm={deleteItems}
               onCancel={() => message.error('取消')}
-              okText="Yes"
-              cancelText="No"
+              okText="确认"
+              cancelText="关闭"
             >
               <Button
                 type="primary"

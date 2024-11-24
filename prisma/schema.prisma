@@ -7,7 +7,7 @@ generator client {
   binaryTargets = ["native", "windows"]
 
   // 注释这一行重新 generate
-  output        = "../release/app/node_modules/@prisma/client"
+  output = "../release/app/node_modules/@prisma/client"
 }
 
 datasource db {
@@ -16,20 +16,20 @@ datasource db {
 }
 
 model Character {
-  id        Int             @id @default(autoincrement())
-  name      String // 人物名
-  comments  String // 注释
-  relations Relationship[]
-  groups    GroupRelation[]
-  Relationship Relationship[] @relation(name: "relativeCharactor")
+  id           Int             @id @default(autoincrement())
+  name         String // 人物名
+  comments     String // 注释
+  relations    Relationship[]
+  groups       GroupRelation[]
+  Relationship Relationship[]  @relation(name: "relativeCharactor")
 }
 
 model Relationship {
   id                  Int       @id @default(autoincrement())
-  character           Character @relation(fields: [characterId], references: [id])
+  character           Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId         Int // 人物id
   relativeCharactorId Int // 与 人物id 有关的人物id
-  relativeCharactor  Character @relation(fields: [relativeCharactorId], references: [id], name: "relativeCharactor")
+  relativeCharactor   Character @relation(fields: [relativeCharactorId], references: [id], name: "relativeCharactor", onDelete: Cascade)
   relationName        String //关系名称
 }
 
@@ -42,8 +42,8 @@ model Group {
 
 model GroupRelation {
   id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
-  group       Group     @relation(fields: [groupId], references: [id])
+  group       Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int
 }

@@ -218,9 +218,9 @@ export default function RelationPage() {
             description="注意：删除后无法还原！"
             onConfirm={() => deleteItem(d)}
             onCancel={() => message.error('取消')}
-            okText="Yes"
+            okText="确认"
             placement="left"
-            cancelText="No"
+            cancelText="关闭"
           >
             <Button type="link" danger loading={loading}>
               删除
@@ -279,8 +279,8 @@ export default function RelationPage() {
               description="注意：删除后无法还原！"
               onConfirm={deleteItems}
               onCancel={() => message.error('取消')}
-              okText="Yes"
-              cancelText="No"
+              okText="确认"
+              cancelText="关闭"
             >
               <Button
                 type="primary"

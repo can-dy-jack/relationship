@@ -227,12 +227,12 @@ function Page() {
           </Button>
           <Popconfirm
             title="确定删除？"
-            description="注意：删除后无法还原！"
+            description="注意：该人物的信息及其所有相关的人物关系都将删除，且删除后无法还原！"
             onConfirm={() => deleteItem(d)}
             onCancel={() => message.error('取消')}
-            okText="Yes"
+            okText="确认"
             placement="left"
-            cancelText="No"
+            cancelText="关闭"
           >
             <Button type="link" danger loading={loading}>
               删除
@@ -290,11 +290,11 @@ function Page() {
             />
             <Popconfirm
               title={`确定删除${selectedRowKeys.length}条数据？`}
-              description="注意：删除后无法还原！"
+              description="注意：所有人物的信息及其所有相关的人物关系都将删除，且删除后无法还原！"
               onConfirm={deleteItems}
               onCancel={() => message.error('取消')}
-              okText="Yes"
-              cancelText="No"
+              okText="确认"
+              cancelText="关闭"
             >
               <Button
                 type="primary"
