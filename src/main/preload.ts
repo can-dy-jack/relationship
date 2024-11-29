@@ -45,4 +45,7 @@ contextBridge.exposeInMainWorld('apis', {
   updateRelation: (id: number, name: string) =>
     ipcRenderer.invoke('updateRelation', id, name),
   deleteRelation: (ids: number[]) => ipcRenderer.invoke('deleteRelation', ids),
+
+  // Excel
+  exportExcel: () => ipcRenderer.invoke('exportExcel'),
 });

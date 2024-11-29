@@ -56,6 +56,8 @@ declare global {
       ) => Promise<Relationship>;
       updateRelation: (id: number, name: string) => Promise<Relationship>;
       deleteRelation: (ids: number[]) => Promise<boolean>;
+
+      exportExcel: () => Promise<void>;
     };
   }
 }

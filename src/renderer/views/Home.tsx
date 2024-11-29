@@ -1,10 +1,12 @@
-import { Button, Flex, Form, Select } from 'antd';
+import { Button, Dropdown, Flex, Form, Select, Space, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { Character, Relationship } from '@prisma/client';
 import SimpleGraph, { DataType } from '../components/RelationGraph';
+import { exportFile } from '../utility';
 
 export default function Home() {
   const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [rootId, setRootId] = useState<number>();
 
@@ -62,34 +64,68 @@ export default function Home() {
 
   return (
     <Flex gap={10} vertical style={{ height: '100%' }}>
-      <Form
-        layout="inline"
-        form={form}
-        onValuesChange={onValuesChange}
-        variant="filled"
-      >
-        <Form.Item
-          name="rootId"
-          label="选择核心人物"
-          rules={[{ required: true }]}
+      <Flex>
+        <Form
+          layout="inline"
+          form={form}
+          onValuesChange={onValuesChange}
+          variant="filled"
+          style={{ flex: 1 }}
         >
-          <Select
-            style={{ width: '100%' }}
-            placeholder="Please select"
-            options={characters}
-            fieldNames={{
-              value: 'id',
-              label: 'name',
-            }}
-          />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" onClick={start}>
-            开始绘制
-          </Button>
-        </Form.Item>
-      </Form>
+          <Form.Item
+            name="rootId"
+            label="选择核心人物"
+            rules={[{ required: true }]}
+          >
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Please select"
+              options={characters}
+              fieldNames={{
+                value: 'id',
+                label: 'name',
+              }}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Space>
+              <Button type="primary" onClick={start}>
+                开始绘制
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: '1',
+                label: '导出所有数据到 Excel',
+                onClick: async () => {
+                  const data = await window.apis.exportExcel();
+                  exportFile(data, '人物关系数据');
+                },
+              },
+              {
+                key: '2',
+                label: '从 Excel 文件中导入',
+                onClick: async () => {
+                  messageApi.open({
+                    type: 'warning',
+                    content: '暂无导入功能',
+                  });
+                },
+              },
+            ],
+          }}
+          placement="bottom"
+          arrow
+        >
+          <Button type="link">更多</Button>
+        </Dropdown>
+      </Flex>
       {graphData && <SimpleGraph data={graphData} />}
+      {contextHolder}
     </Flex>
   );
 }
