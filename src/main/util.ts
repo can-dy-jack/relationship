@@ -22,8 +22,8 @@ export async function exportExcel(data: any) {
   for (const key of Object.keys(data)) {
     const worksheet = workbook.addWorksheet(key);
 
-    // const headers = Object.keys(users[0]);
-    // worksheet.addRow(headers);
+    const headers = Object.keys(data[key][0]);
+    worksheet.addRow(headers);
 
     data[key].forEach((item: any) => {
       const values = Object.values(item);
