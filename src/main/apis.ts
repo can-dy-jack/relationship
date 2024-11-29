@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { ipcMain } from 'electron';
 import { TableSearchParams } from './type';
+import { exportExcel } from './util';
 
 export default function InitApis(prisma: PrismaClient) {
   ipcMain.handle(
@@ -342,5 +343,18 @@ export default function InitApis(prisma: PrismaClient) {
       },
     });
     return res;
+  });
+
+  ipcMain.handle('exportExcel', async () => {
+    const characters = await prisma.character.findMany({});
+    const groups = await prisma.group.findMany({});
+    const groupRelations = await prisma.groupRelation.findMany({});
+    const relationships = await prisma.relationship.findMany({});
+    return exportExcel({
+      人物列表: characters,
+      分组列表: groups,
+      人物分组列表: groupRelations,
+      人物关系列表: relationships,
+    });
   });
 }

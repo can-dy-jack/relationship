@@ -1,7 +1,8 @@
-import { Button, Flex, Form, Select } from 'antd';
+import { Button, Flex, Form, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { Character, Relationship } from '@prisma/client';
 import SimpleGraph, { DataType } from '../components/RelationGraph';
+import { exportFile } from '../utility';
 
 export default function Home() {
   const [form] = Form.useForm();
@@ -84,9 +85,21 @@ export default function Home() {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={start}>
-            开始绘制
-          </Button>
+          <Space>
+            <Button type="primary" onClick={start}>
+              开始绘制
+            </Button>
+
+            <Button
+              type="primary"
+              onClick={async () => {
+                const data = await window.apis.exportExcel();
+                exportFile(data, '人物关系数据');
+              }}
+            >
+              导出
+            </Button>
+          </Space>
         </Form.Item>
       </Form>
       {graphData && <SimpleGraph data={graphData} />}
