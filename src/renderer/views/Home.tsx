@@ -121,7 +121,7 @@ export default function Home() {
           placement="bottom"
           arrow
         >
-          <Button type="link">更多</Button>
+          <Button type="link">更多操作</Button>
         </Dropdown>
       </Flex>
       {graphData && <SimpleGraph data={graphData} />}
