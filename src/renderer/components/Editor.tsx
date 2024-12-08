@@ -30,6 +30,6 @@ function EditorComp({ value = '', onChange = () => {} }: EditorCompProps) {
       />
     </div>
   );
-};
+}
 
 export default EditorComp;

@@ -90,8 +90,6 @@ export default function InitApis(prisma: PrismaClient) {
 
         return true;
       } catch (e) {
-        // TODO LOG
-        // console.warn(e);
         return new Error('新增失败👀');
       }
     },
@@ -152,8 +150,6 @@ export default function InitApis(prisma: PrismaClient) {
 
         return true;
       } catch (e) {
-        // TODO LOG
-        // console.warn(e);
         return new Error('更新失败👀');
       }
     },

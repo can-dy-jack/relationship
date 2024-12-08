@@ -176,6 +176,7 @@ function Page() {
       .then((res: any) => {
         message.success(`成功删除${res.count}条数据`);
         getData();
+        setSelectedRowKeys([]);
         return true;
       })
       .catch(message.error);

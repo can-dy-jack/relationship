@@ -1,4 +1,4 @@
-import { Button, Dropdown, Flex, Form, Select, Space, message } from 'antd';
+import { Button, Flex, Form, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { Character, Relationship } from '@prisma/client';
 import SimpleGraph, { DataType } from '../components/RelationGraph';
@@ -6,13 +6,10 @@ import { exportFile } from '../utility';
 
 export default function Home() {
   const [form] = Form.useForm();
-  const [messageApi, contextHolder] = message.useMessage();
 
   const [rootId, setRootId] = useState<number>();
-
   const [characters, setCharacters] = useState<Character[]>([]);
   const [relations, setRelations] = useState<Relationship[]>([]);
-
   const [graphData, setGraphData] = useState<DataType>();
 
   useEffect(() => {
@@ -95,37 +92,17 @@ export default function Home() {
             </Space>
           </Form.Item>
         </Form>
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: '导出所有数据到 Excel',
-                onClick: async () => {
-                  const data = await window.apis.exportExcel();
-                  exportFile(data, '人物关系数据');
-                },
-              },
-              {
-                key: '2',
-                label: '从 Excel 文件中导入',
-                onClick: async () => {
-                  messageApi.open({
-                    type: 'warning',
-                    content: '暂无导入功能',
-                  });
-                },
-              },
-            ],
+        <Button
+          type="link"
+          onClick={async () => {
+            const data = await window.apis.exportExcel();
+            exportFile(data, '人物关系数据');
           }}
-          placement="bottom"
-          arrow
         >
-          <Button type="link">更多操作</Button>
-        </Dropdown>
+          导出数据
+        </Button>
       </Flex>
       {graphData && <SimpleGraph data={graphData} />}
-      {contextHolder}
     </Flex>
   );
 }

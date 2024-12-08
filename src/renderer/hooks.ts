@@ -19,6 +19,7 @@ export const useTableScroll = (params: {
             ?.getElementsByClassName('ant-table-thead')[0]
         : null;
     else {
+      // eslint-disable-next-line prefer-destructuring
       tHeader = document.getElementsByClassName('ant-table-thead')[0];
     }
 
